@@ -28,3 +28,50 @@ rsync -avzP rsync://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/ .
 cat chr1.fa | seqkit locate -P -p  cg > {OUTPUT_FILENAME}.csv
 ```
 
+## Included Scripts
+### CGI-Level Analysis
+1. Analysis of Human ESCS (HUES64WT_example)
+   1. Written for Python/Jupter Notebook (.ipynb)
+   2. Provides visualization of CpG Number vs. CGI Length, along with outputting required "IslandLvl_Agg_###", which are used in the ensuing MATLB scripts
+   3. The WGBS (.bed) files must be sorted and intersected with the genome assembly (using the bedtools package). This can be accomplished using the following code block from the terminal environment:
+```
+# Step 1: Sorting WGBS file
+f=$WGBS_filename.bed
+g=$WGBS_filename”_proc”.bed
+touch $g 
+out_fp=$WGBS_filename”.tmp”
+awk 'NR % 2 == 0' $f | awk 'BEGIN {FS="\t"} {print $1"\t"$2"\t"$3"\t"$5}' | sort -k1,1 -k2,2n > $out_fp
+mv $out_fp $g
+
+#Step 2: Intersect WGBS and CGI Annotation Bed files
+##Generic
+bedtools intersect -a WGBS_BED_PATH -b  CGI_PATH -wa -wb -sorted | awk ‘{print $1”\t”$2”\t”$3”\t”$4”\t”$8"\t"$9"\t"$10}’ > TARGET_OUTPUT_PATH.bed
+```
+
+2. BivariateHistogram_HumanWT_example
+   1. Written for MATLAB  2023b (.m)
+   2. Provides bivariate histograms and CpG island classifications shown in Figure (???).
+   3. Needs the "IslandLvl_Agg_###" files for HUES64, HUES8, and IMR90 WT cell lines for the ensuing example.
+
+3. IndividualCGIMethylationChange_HUES64_example
+   1. Written for MATLAB 2023b (.m)
+   2. Calculates percent change of each CGI between the WT and its ensuing Knockout.
+   3. Needs the "IslandLvl_Agg_###" files for HUES64WT, along with DKO (Early/Late) for the ensuing example.
+
+### Individual CpG-Level Analysis
+1. CpGDensity_Calc
+   1. Written for MATLAB 2023 (.m)
+   2. Using the .csv containing a list of CpG locations, tuhis script calculates the local density of each CpG listed. Generates "CpGDensities_W##" which is used to intersect with the raw WGBS datasets.
+
+2. WGBS_CpGIntersect_AllData
+   1. Written to be run from the terminal environment; requires the sorted/processed file of WGBS data, the bedtools package and CpGDensities_W##.csv output file.
+   2. In an coordinated manner, this .command file intersects the WGBS information with CpG density calculation (given a certain window size ##), then outputs .bed files with each CpG containing a value for its local density and associated methyl fraction.
+
+3. ReadPlotData_WT_example
+   1. Written for MATLAB2023 (.m)
+   2. Peforms classification into hypo/hypermethylated, or intermediate states, calculates the Mean/Median and 25th/75th percentiles with respect to local CpG density, then finall performs the Simple/Log-transformed Hill function fittting to the mean of each dataset (see Figure ###/Supplemental Figure ###)
+   3. Needs the file containing the WGBS/Local CpG Density intersection files for HUES64, HUES8, and IMR90 WT cell lines for the ensuing example.
+  
+4. CoarseGrainFitting (Folder)
+   1. Contains parameter files and scripts demonstrating how to fit the experimental data landscapes using the model described in Figure ###
+   2. ???
