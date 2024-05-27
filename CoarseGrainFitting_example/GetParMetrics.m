@@ -1,0 +1,32 @@
+function [NetMeth,RelNetDeMeth,CoW,CoE,NormCoW,NormCoE]=GetParMetrics(p,DL)
+k1=p(1);
+k2=p(2);
+k3=p(3);
+k4=p(4);
+k5=p(5);
+k6=p(6);
+k7=p(7);
+k8=p(8);
+k9=p(9);
+k10=p(10);
+k11=p(11);
+k12=p(12);
+k13=p(13);
+k14=p(14);
+DLm=DL(6); %this assumes all m reactions (5-8) have same lengthscale
+DLu=DL(9); %assumes all u reactions (9-12) have same lengthscale
+k2t=k2+k14;
+k4t=k4+k13;
+NetMeth=k1*k3;
+RelNetDeMeth=k2t*k4t/(k1*k3);
+CoW=k6*k8/(k1*k3);
+CoE=k9*k11/(k2t*k4t);
+x=10; %inter-CpG distance
+fm=exp(-x/DLm);
+fu=exp(-x/DLu);
+CoWPart=fm*(k8*k3+k6*k1+fm*k6*k8);
+CoEPart=fu*(k9*k4t+k11*k2t+fu*k9*k11);
+NormCoW=CoWPart/(k1*k3+CoWPart);
+NormCoE=CoEPart/(k2*k4+CoEPart);
+
+end
