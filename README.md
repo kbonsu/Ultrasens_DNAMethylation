@@ -69,7 +69,7 @@ bedtools intersect -a WGBS_BED_PATH -b  CGI_PATH -wa -wb -sorted | awk ‘{print
 
 3. ReadPlotData_WT_example
    1. Written for MATLAB2023 (.m)
-   2. Peforms classification into hypo/hypermethylated, or intermediate states, calculates the Mean/Median and 25th/75th percentiles with respect to local CpG density, then finall performs the Simple/Log-transformed Hill function fittting to the mean of each dataset (see Figure ###/Supplemental Figure ###)
+   2. Peforms classification into hypo/hypermethylated, or intermediate states, calculates the Mean/Median and 25th/75th percentiles with respect to local CpG density, then finally performs the Simple/Log-transformed Hill function fittting to the mean of each dataset (see Figure ###/Supplemental Figure ###)
    3. Needs the file containing the WGBS/Local CpG Density intersection files for HUES64, HUES8, and IMR90 WT cell lines for the ensuing example.
   
 4. CoarseGrainFitting (Folder)
