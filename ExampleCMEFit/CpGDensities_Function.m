@@ -1,9 +1,9 @@
 function Densities = CpGDensities_Function(CpGPositions,W)
 
-%NCpG=100;
-%d=2;
-%CpGPositions=[1:d:NCpG*d];
-%W=50; %window size
+%inputs
+%CpGPositions - vector of positions in bp
+%W window size, it counts neighbors w/in +/- W
+
 
 NCpG=length(CpGPositions);
 

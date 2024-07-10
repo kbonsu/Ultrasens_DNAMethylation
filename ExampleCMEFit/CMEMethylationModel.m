@@ -1,26 +1,46 @@
-function [PVecMSM,MBins,PVec,Prob_ind,IndCpGp] = TestingNewCME(NCpG,Parameters,CpGPositions,DistLength)
-% Nt=24; %cell cycle time
-% HyperVal=0.8; %cutoff for hypermeth
-% HypoVal=0.2; %cutoff for hypometh
-% NCpG=27;
-% 
-% %Calculate the standard model parameters
-% %assume we know k2, k3
-% k3 = 2;
-% k2=0.1;
-% k13=1/Nt;
-% k14=1/(2*Nt);
-% %make sure that k3*ph>k13*pm! Or things break--> negative value for k4
-% 
-% k1=0.151;
-% k4=0.2083;
-% DL=32;
-% %distance parameters
-% DistLength=[0,0,0,0,DL,DL,DL,DL,DL,DL,DL,DL];
-% 
-% CoWrite=3.7;%4.8;%6.3921;%5.3667;%1;%5.4;%0.06;%0.0381;
-% CoErase=4.5;%.4;%5.8;%8.2785;%6.5432;%1.65;%6.5;%0.35;%0.2207;
-% Parameters=[k1,k2,k3,k4,0,CoWrite,0,CoWrite,CoErase,0,CoErase,0,k13,k14];
+function [PVecMSM,MBins,PVec] = CMEMethylationModel(NCpG,Parameters,CpGPositions,DistLength)
+%Inputs: 
+%NCpG, the number of CpGs in the system
+%Parameters, 1x14 vector (associated reactions below)
+%CpGPositions, 1xNCpG vector of positions of CpGs (basepairs)
+%DistLength, 1x12 vector, but elements 1-4 are unused (standard reactions).
+    %Elements 5-12 are the lengthscale of that collaborative reaction
+    
+%Outputs:
+%PVecMSM, the computed stationary probability vector over methylation macrostates
+%MBins=[0:0.5:NCpG]; %the macrostate bins, net system methylation varies
+    %from 0 to NCpG
+%PVec, the computed stationary probability vector over methylation
+%microstates
+
+%%Specifying the Reaction Network
+%Params: u+,h-,h+,m-,h+h,h+m,u+h,u+m,h-u,h-h,m-u,m-h
+%R1 u-> h
+%R2 h-> u
+%R3 h-> m
+%R4 m-> h
+%R5 h +h -> m +h
+%R6 h +m -> m +m
+%R7 u + h -> h + h
+%R8 u + m -> h +m
+%R9 h + u -> u +u
+%R10 h + h -> u + h
+%R11 m + u -> h + u
+%R12 m + h -> h + h
+
+%Model based on Haerter, et al. %Rxns 1 -4 are Standard (independent site).
+%Rxns 5-12 are Collaborative, second species indicates required state of
+%the helper site, exerted by an exponential distance function, lengthscales
+%in DistLength
+
+%Below are the replication reactions. Real-world is that after every Nt
+%time interval, m -> h (in daughter cells). And h splits into u and h. But we 
+%are not explicitly tracking growth of cell population. Instead assume 
+%that m ->h at rate 1/Nt and h->u at rate 1/(2Nt), continuously. 
+
+%R13 m -> h (replication)
+%R14 h -> u (replication)
+
 
 k=Parameters;
 Dists=pdist(CpGPositions');
@@ -167,7 +187,7 @@ MSM=MSM-diag(sum(MSM));
 [VV,DD]=eigs(MSM,3,1E-8);
 PVec=VV(:,1)/sum(VV(:,1));
 
-% %Now we make an even more coarse-grained pr27bability vector
+% %Now we make an even more coarse-grained probability vector
 %set up more coarse grained bins
 MBins=[0:0.5:NCpG]; %the macrostate bins
 
@@ -185,20 +205,6 @@ end
 Chi_Wtd=Chi.*repmat(PVec,1,NMacro);
 PVecMSM=sum(Chi_Wtd); %coarse grained prob sums the contributions from each microstate
 
-%plot(MBins/NCpG,PVecMSM)
-%hold on
-%
-% SumChiWtd=sum(Chi_Wtd,1);
-% NormWtChi=Chi_Wtd./repmat(SumChiWtd,NMicro,1);
-% %Calculate the MSM directly from the rate matrix
-% MSMBin=Chi'*MSM*NormWtChi; %this coarser version of MSM in terms of Meth bins --for validation
-%We want to recover the pu,ph,pm for individual CpGs from PVecMSM (which is
-
-%the probability of total methylation states
-putot=sum(Types(:,1).*PVec)/NCpG;
-phtot=sum(Types(:,2).*PVec)/NCpG;
-pmtot=sum(Types(:,3).*PVec)/NCpG;
-IndCpGp=[putot,phtot,pmtot];
 
 
 
