@@ -61,7 +61,7 @@ bedtools intersect -a WGBS_BED_PATH -b  CGI_PATH -wa -wb -sorted | awk ‘{print
 ### Individual CpG-Level Analysis
 1. CpGDensity_Calc
    1. Written for MATLAB 2023 (.m)
-   2. Using the .csv containing a list of CpG locations, tuhis script calculates the local density of each CpG listed. Generates "CpGDensities_W##" which is used to intersect with the raw WGBS datasets.
+   2. Using the .csv containing a list of CpG locations, this script calculates the local density of each CpG listed. Generates "CpGDensities_W##" which is used to intersect with the raw WGBS datasets.
 
 2. WGBS_CpGIntersect_AllData
    1. Written to be run from the terminal environment; requires the sorted/processed file of WGBS data, the bedtools package and CpGDensities_W##.csv output file.
